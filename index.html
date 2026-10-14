@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nombor Ratus Dan Ribu – จำนวนนับหลักร้อยและหลักพัน</title>
+<style>
+:root{--bg:#fff8e7;--ink:#26324a;--card:#fff;--red:#e8505b;--blue:#3a86ff;--green:#2ab37a;--yel:#ffbe0b;--line:#26324a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b2236;--ink:#fff4d6;--card:#2a3452;--line:#fff4d6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Mali","Sarabun","Noto Sans Thai",system-ui,sans-serif;font-size:20px;line-height:1.5}
+main{max-width:720px;margin:0 auto;padding:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:24px;margin:0}
+.stars{font-size:26px;font-weight:700;white-space:nowrap}
+.card{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 5px 0 var(--line)}
+.big{font-size:56px;font-weight:800;text-align:center;margin:6px 0;letter-spacing:1px}
+.my{font-size:30px;font-weight:800;text-align:center;color:var(--blue)}
+button{font:inherit;font-weight:700;color:#26324a;background:var(--yel);border:3px solid var(--line);border-radius:18px;padding:14px 18px;min-height:56px;cursor:pointer;box-shadow:0 4px 0 var(--line);touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.menu button{font-size:22px;min-height:96px}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0}
+.opt{background:#fff;min-width:110px}
+.ok{background:#9be8c4!important}.no{background:#ffb3b8!important}
+.fb{min-height:64px;text-align:center;font-weight:700;font-size:20px}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.nav .home{background:#fff}
+.slot{min-height:56px;border:3px dashed var(--line);border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.t{background:#fff;color:#26324a;padding:8px 14px;min-height:48px}
+.bar{height:14px;background:rgba(128,128,128,.3);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+.blk{display:inline-block;border-radius:5px;border:2px solid var(--line);margin:2px;vertical-align:middle}
+.b100{width:34px;height:34px;background:var(--red)}
+.b1000{width:60px;height:60px;background:var(--blue)}
+.b10{width:34px;height:10px;background:var(--green)}
+.hint{background:#e8f1ff;color:#26324a;border-radius:14px;padding:10px;text-align:left;font-size:18px}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><h1 id="ttl">🔢 Nombor Ratus Dan Ribu</h1><div class="stars" id="stars">⭐ 0</div></header>
+<div id="app"></div>
+</main>
+<script>
+var N={0:"kosong",1:"satu",2:"dua",3:"tiga",4:"empat",5:"lima",6:"enam",7:"tujuh",8:"lapan",9:"sembilan",10:"sepuluh",11:"sebelas"};
+function my(n){
+ if(n<12)return N[n];
+ if(n<20)return N[n-10]+" belas";
+ if(n<100){var t=Math.floor(n/10),o=n%10;return N[t]+" puluh"+(o?" "+N[o]:"")}
+ if(n<1000){var h=Math.floor(n/100),r=n%100;return (h==1?"seratus":N[h]+" ratus")+(r?" "+my(r):"")}
+ var k=Math.floor(n/1000),r2=n%1000;
+ return (k==1?"seribu":N[k]+" ribu")+(r2?" "+my(r2):"")}
+var stars=0,app=document.getElementById("app");
+function addStar(n){stars+=n;document.getElementById("stars").textContent="⭐ "+stars}
+function beep(ok){try{var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=ok?740:200;g.gain.value=.12;o.start();o.stop(c.currentTime+(ok?.18:.3))}catch(e){}}
+function say(t){try{var u=new SpeechSynthesisUtterance(t);u.lang="ms-MY";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+var PRAISE=["เก่งมาก! 🎉","สุดยอด! 🌟","ถูกต้อง! 👏","เยี่ยมไปเลย! 🚀"];
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function sh(a){return a.slice().sort(function(){return Math.random()-.5})}
+function home(){
+ app.innerHTML='<div class="card"><p>สวัสดี! เลือกบทเรียนที่อยากเล่น แตะปุ่มใหญ่ได้เลย 👇</p></div><div class="menu">'+
+ '<button onclick="learn()">📖 1. เรียนรู้</button>'+
+ '<button onclick="mcq()">🖼️ 2. เลือกตอบ</button>'+
+ '<button onclick="fill()">✏️ 3. เติมคำ</button>'+
+ '<button onclick="order()">🧩 4. เรียงคำ</button>'+
+ '<button onclick="tag()">🏷️ 5. แตะคำสำคัญ</button>'+
+ '<button onclick="sort2()">🎨 6. จำแนกหมวด</button>'+
+ '<button onclick="mission()" style="grid-column:1/3;background:#9be8c4">🚀 7. ภารกิจรวม (เล่นกลุ่ม)</button>'+
+ '<button onclick="match()" style="background:#d8c8ff">🃏 8. จับคู่การ์ด</button>'+
+ '<button onclick="build()" style="background:#b3d1ff">🧱 9. สร้างเลขด้วยบล็อก</button>'+
+ '<button onclick="rank()" style="background:#ffd6a5">📈 10. เรียงน้อยไปมาก</button>'+
+ '<button onclick="tf()" style="background:#caffbf">✅❌ 11. ถูกหรือผิด</button>'+
+ '<button onclick="connect()" style="grid-column:1/3;background:#b3d1ff">🔗 12. โยงเส้นจับคู่</button></div>'}
+function nav(extra){return '<div class="nav"><button class="home" onclick="home()">🏠 หน้าหลัก</button>'+(extra||"")+'</div>'}
+function blocks(n){var h="",k=Math.floor(n/1000),c=Math.floor(n%1000/100),t=Math.floor(n%100/10);
+ for(var i=0;i<k;i++)h+='<span class="blk b1000"></span>';
+ for(i=0;i<c;i++)h+='<span class="blk b100"></span>';
+ for(i=0;i<t;i++)h+='<span class="blk b10"></span>';return h}
+/* 1 learn */
+var lp=0,LS=[100,200,300,500,1000,2000,3500,4800];
+function learn(){var n=LS[lp];
+ app.innerHTML='<div class="card"><div class="bar"><i style="width:'+((lp+1)/LS.length*100)+'%"></i></div>'+
+ '<div class="big">'+n+'</div><div class="my">'+my(n)+'</div><div style="text-align:center;margin:8px 0">'+blocks(n)+'</div>'+
+ '<div class="hint">🟦 = 1,000 &nbsp; 🟥 = 100 &nbsp; 🟩 = 10<br>'+(n>=1000?'พัน = <b>ribu</b> เช่น 2,000 = dua ribu':'ร้อย = <b>ratus</b> เช่น 300 = tiga ratus')+'</div>'+
+ '<div class="row"><button onclick="say(my('+n+'))">🔊 ฟังเสียง</button></div></div>'+
+ nav((lp>0?'<button onclick="lp--;learn()">⬅️ ก่อนหน้า</button>':'')+(lp<LS.length-1?'<button onclick="lp++;learn()">ถัดไป ➡️</button>':'<button onclick="lp=0;addStar(1);mcq()">ไปทำแบบฝึกหัด ▶️</button>'))}
+/* generic round helper */
+function rounds(total,make){var i=0,score=0;
+ function next(){if(i>=total){app.innerHTML='<div class="card" style="text-align:center"><div class="big">🏆</div><p>จบแล้ว! ได้ '+score+' / '+total+' ข้อ</p><p>'+("⭐".repeat(score))+'</p></div>'+nav('<button onclick="location.reload()">🔁 เล่นอีกครั้ง</button>');return}
+  i++;make(i,total,function(ok){if(ok){score++;addStar(1)}},next)}
+ next()}
+function shell(i,t,body){return '<div class="card"><div class="bar"><i style="width:'+(i/t*100)+'%"></i></div>'+body+'<div class="fb" id="fb"></div><div class="row hide" id="nx"></div></div>'+nav()}
+function feedback(ok,why,done,next){beep(ok);var f=document.getElementById("fb");
+ f.innerHTML=ok?rnd(PRAISE):'ลองดูใหม่นะ 💪<div class="hint">💡 '+why+'</div>';
+ if(ok){var nx=document.getElementById("nx");nx.classList.remove("hide");nx.innerHTML='<button onclick="NEXT()">ข้อต่อไป ▶️</button>'}}
+function pick3(n){var s=[n],tries=0;while(s.length<3&&tries<50){tries++;var d=n+[-100,100,-1000,1000,200,-200][Math.floor(Math.random()*6)];if(d>0&&s.indexOf(d)<0)s.push(d)}return sh(s)}
+function R(){return (Math.floor(Math.random()*9)+1)*100}
+/* 2 mcq */
+function mcq(){var first=true;rounds(5,function(i,t,done,next){
+ var n=Math.random()<.5?R():(Math.floor(Math.random()*9)+1)*1000;window.NEXT=next;var got=false;
+ app.innerHTML=shell(i,t,'<p style="text-align:center">เลือกตัวเลขที่ตรงกับคำ</p><div class="my">'+my(n)+'</div><div class="row"><button onclick="say(my('+n+'))">🔊</button></div><div class="row" id="o"></div>');
+ var o=document.getElementById("o");
+ pick3(n).forEach(function(c){var b=document.createElement("button");b.className="opt";b.textContent=c;
+  b.onclick=function(){if(got)return;var ok=c==n;if(ok){got=true;b.className="opt ok"}else b.className="opt no";if(first||ok)done(ok&&first);first=false;
+   feedback(ok,my(n)+' = '+n+' ('+(n>=1000?'ribu = พัน':'ratus = ร้อย')+')');if(ok)first=true};o.appendChild(b)})})}
+/* 3 fill */
+function fill(){rounds(5,function(i,t,done,next){
+ var n=Math.floor(Math.random()*9+1)*(Math.random()<.5?100:1000),w=n>=1000?"ribu":"ratus",k=n/(n>=1000?1000:100);window.NEXT=next;var tried=false;
+ app.innerHTML=shell(i,t,'<div class="big">'+n+'</div><div class="my">'+(k==1?'se':N[k]+' ')+'<span style="border-bottom:4px solid var(--red)">&nbsp;&nbsp;?&nbsp;&nbsp;</span></div><p style="text-align:center">แตะคำที่ใส่ในช่องว่าง</p><div class="row" id="o"></div>');
+ var o=document.getElementById("o");
+ ["ratus","ribu","puluh"].forEach(function(c){var b=document.createElement("button");b.className="opt";b.textContent=c;
+  b.onclick=function(){var ok=c==w;b.className="opt "+(ok?"ok":"no");if(!tried){done(ok);tried=true}
+   feedback(ok,'ร้อย = ratus, พัน = ribu, สิบ = puluh. '+n+' อ่านว่า '+my(n))};o.appendChild(b)})})}
+/* 4 order */
+function order(){rounds(4,function(i,t,done,next){
+ var n=[200,300,500,700,1500,2000,3000,4500][Math.floor(Math.random()*8)],w=my(n).split(" "),sel=[],tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<div class="big">'+n+'</div><p style="text-align:center">แตะคำตามลำดับให้เป็นคำอ่านที่ถูกต้อง</p><div class="slot" id="s"></div><div class="row" id="o"></div><div class="row"><button class="home" onclick="window.CLR()">↩️ เริ่มใหม่</button></div>');
+ var s=document.getElementById("s"),o=document.getElementById("o");
+ function draw(){s.innerHTML=sel.map(function(x){return '<span class="t blk" style="margin:0">'+x+'</span>'}).join("")||"แตะคำด้านล่าง";
+  o.innerHTML="";sh(w.map(function(x,j){return [x,j]})).forEach(function(p){if(sel.indexOf(p[1])>-1)return;
+   var b=document.createElement("button");b.className="opt";b.textContent=p[0];b.onclick=function(){sel.push(p[1]);draw();
+    if(sel.length==w.length){var ok=sel.every(function(v,j){return w[v]==w[j]});if(!tried){done(ok);tried=true}
+     feedback(ok,'คำตอบที่ถูกคือ: <b>'+my(n)+'</b>');if(!ok)sel=[],setTimeout(draw,900)}};o.appendChild(b)});
+  s.innerHTML=s.innerHTML.replace(/<span class="t blk" style="margin:0">([^<]*)<\/span>/g,function(m,x){return '<button class="t">'+(w[sel.shift()]||x)+'</button>'}) }
+ /* simple redraw keeping selection text */
+ var orig=draw;window.CLR=function(){sel=[];document.getElementById("fb").innerHTML="";draw2()};
+ function draw2(){s.innerHTML=sel.map(function(j){return '<button class="t">'+w[j]+'</button>'}).join("")||"แตะคำด้านล่าง";o.innerHTML="";
+  sh(w.map(function(x,j){return [x,j]})).forEach(function(p){if(sel.indexOf(p[1])>-1)return;var b=document.createElement("button");b.className="opt";b.textContent=p[0];
+   b.onclick=function(){sel.push(p[1]);draw2();if(sel.length==w.length){var ok=sel.every(function(v,j){return w[v]==w[j]});if(!tried){done(ok);tried=true}
+    feedback(ok,'คำตอบที่ถูกคือ: <b>'+my(n)+'</b>');if(!ok)setTimeout(function(){sel=[];draw2()},1200)}};o.appendChild(b)})}
+ draw2()})}
+/* 5 tag */
+function tag(){rounds(4,function(i,t,done,next){
+ var n=[200,300,500,800,2000,3000][Math.floor(Math.random()*6)],isK=n>=1000,target=isK?"ribu":"ratus",tried=false;window.NEXT=next;
+ var words=["Ali","ada",my(n).split(" ")[0],target,"buku"];
+ app.innerHTML=shell(i,t,'<p style="text-align:center">ประโยค: Ali ada '+my(n)+' buku.<br>แตะ <b>คำบอกหลัก'+(isK?'พัน':'ร้อย')+'</b> ('+target+')</p><div class="row" id="o"></div>');
+ var o=document.getElementById("o"),ws=("Ali ada "+my(n)+" buku").split(" ");
+ ws.forEach(function(c){var b=document.createElement("button");b.className="opt";b.textContent=c;b.style.textDecoration="underline wavy var(--red)";
+  b.onclick=function(){var ok=c==target;b.className="opt "+(ok?"ok":"no");if(!tried){done(ok);tried=true}feedback(ok,target+' คือคำบอกหลัก'+(isK?'พัน':'ร้อย'));};o.appendChild(b)})})}
+/* 6 sort */
+function sort2(){rounds(6,function(i,t,done,next){
+ var n=Math.random()<.5?R():(Math.floor(Math.random()*9)+1)*1000,isK=n>=1000,tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<div class="my">'+my(n)+'</div><div class="row"><button onclick="say(my('+n+'))">🔊</button></div><p style="text-align:center">เลขนี้อยู่หมวดไหน?</p><div class="row"><button class="opt" style="background:#ffb3b8" id="a">🟥 Ratus (ร้อย)</button><button class="opt" style="background:#b3d1ff" id="b">🟦 Ribu (พัน)</button></div>');
+ [["a",false],["b",true]].forEach(function(p){document.getElementById(p[0]).onclick=function(){var ok=p[1]==isK;if(!tried){done(ok);tried=true}feedback(ok,my(n)+' = '+n+(isK?' เป็นหลักพัน':' เป็นหลักร้อย'))}})})}
+/* 7 mission */
+function mission(){rounds(3,function(i,t,done,next){
+ var k=Math.floor(Math.random()*4)+1,c=Math.floor(Math.random()*8)+1,n=k*1000+c*100,tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<p style="text-align:center">👥 ภารกิจกลุ่ม: ช่วยกันนับบล็อก แล้วเลือกคำอ่านให้ถูก</p><div style="text-align:center">'+blocks(n)+'</div><div class="hint">🟦 = 1,000 &nbsp; 🟥 = 100</div><div class="row" id="o"></div>');
+ var o=document.getElementById("o");
+ pick3(n).forEach(function(v){var b=document.createElement("button");b.className="opt";b.textContent=my(v);
+  b.onclick=function(){var ok=v==n;b.className="opt "+(ok?"ok":"no");if(!tried){done(ok);tried=true}feedback(ok,'นับ 🟦 ได้ '+k+' = '+my(k*1000)+' และ 🟥 ได้ '+c+' = '+my(c*100)+' รวมเป็น '+n)};o.appendChild(b)})})}
+/* 8 match */
+function match(){var ns=sh([100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000]).slice(0,6),cs=[];
+ ns.forEach(function(n){cs.push({n:n,t:''+n});cs.push({n:n,t:my(n)})});cs=sh(cs);var op=[],f=0,lock=false;
+ app.innerHTML='<div class="card"><p style="text-align:center">แตะการ์ด 2 ใบ จับคู่ตัวเลขกับคำมลายู</p><div class="menu" id="g"></div><div class="fb" id="fb"></div></div>'+nav('<button onclick="match()">🔁 สลับใหม่</button>');
+ var g=document.getElementById('g');
+ cs.forEach(function(c){var b=document.createElement('button');b.textContent='❓';b.style.minHeight='80px';
+  b.onclick=function(){if(lock||b.dataset.d||op.indexOf(b)>-1)return;b.textContent=c.t;b.style.background='#fff';b._c=c;op.push(b);
+   if(op.length<2)return;var a=op[0],d=op[1];op=[];
+   if(a._c.n==d._c.n){a.className=d.className='ok';a.dataset.d=d.dataset.d=1;beep(true);addStar(1);f++;if(f==6)document.getElementById('fb').textContent='เก่งมาก! จับคู่ครบแล้ว 🎉'}
+   else{lock=true;beep(false);setTimeout(function(){a.textContent=d.textContent='❓';a.style.background=d.style.background='';lock=false},900)}};
+  g.appendChild(b)})}
+/* 9 build */
+function build(){rounds(4,function(i,t,done,next){var n=Math.floor(Math.random()*3)*1000+(Math.floor(Math.random()*6)+1)*100,k=0,c=0,tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<p style="text-align:center">สร้างเลขนี้ด้วยบล็อก</p><div class="my">'+my(n)+'</div><div class="row"><button onclick="say(my('+n+'))">🔊</button></div><div class="slot" id="s"></div><div class="row"><button class="opt" id="bk" style="background:#b3d1ff">+🟦 1,000</button><button class="opt" id="bc" style="background:#ffb3b8">+🟥 100</button></div><div class="row"><button class="home" id="br">↩️ ล้าง</button><button id="bg">✅ ตรวจคำตอบ</button></div>');
+ function d(){document.getElementById('s').innerHTML=(k||c)?blocks(k*1000+c*100)+'<br><b>'+(k*1000+c*100)+'</b>':'แตะปุ่มเพื่อเพิ่มบล็อก'}d();
+ document.getElementById('bk').onclick=function(){k++;d()};document.getElementById('bc').onclick=function(){c++;d()};
+ document.getElementById('br').onclick=function(){k=c=0;d()};
+ document.getElementById('bg').onclick=function(){var v=k*1000+c*100,ok=v==n;if(!tried){done(ok);tried=true}feedback(ok,'ตอนนี้ได้ '+v+' ('+my(v||0)+') ต้องการ '+n+': 🟦 '+Math.floor(n/1000)+' ก้อน, 🟥 '+(n%1000)/100+' ก้อน')}})}
+/* 10 rank */
+function rank(){rounds(4,function(i,t,done,next){var pool=sh([100,200,300,400,500,600,700,800,900,1000,2000,3000,4000]).slice(0,4),st=pool.slice().sort(function(a,b){return a-b}),idx=0,tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<p style="text-align:center">แตะคำมลายูเรียงจาก <b>น้อย → มาก</b></p><div class="row" id="o"></div>');
+ var o=document.getElementById('o');
+ pool.forEach(function(n){var b=document.createElement('button');b.className='opt';b.textContent=my(n);
+  b.onclick=function(){if(b.dataset.d)return;if(n==st[idx]){b.className='opt ok';b.dataset.d=1;b.textContent=(idx+1)+'. '+my(n)+' ('+n+')';idx++;if(idx==4){if(!tried)done(true);feedback(true,'')}}
+   else{b.className='opt no';if(!tried){done(false);tried=true}feedback(false,'ตัวเลขที่น้อยที่สุดตอนนี้คือ '+st[idx]+' ('+my(st[idx])+')');setTimeout(function(){b.className='opt'},700)}};o.appendChild(b)})})}
+/* 11 true/false */
+function tf(){rounds(6,function(i,t,done,next){var n=Math.random()<.5?R():(Math.floor(Math.random()*9)+1)*1000,truth=Math.random()<.5,shown=truth?n:pick3(n).filter(function(x){return x!=n})[0],tried=false;window.NEXT=next;
+ app.innerHTML=shell(i,t,'<div class="big">'+n+'</div><div class="my">= '+my(shown)+'</div><p style="text-align:center">ถูกหรือผิด?</p><div class="row"><button class="opt" id="y" style="background:#9be8c4">✅ ถูก</button><button class="opt" id="x" style="background:#ffb3b8">❌ ผิด</button></div>');
+ [['y',true],['x',false]].forEach(function(p){document.getElementById(p[0]).onclick=function(){var ok=p[1]==truth;if(!tried){done(ok);tried=true}feedback(ok,n+' อ่านว่า <b>'+my(n)+'</b>')}})})}
+/* 12 connect lines */
+function connect(){rounds(3,function(i,t,done,next){
+ window.NEXT=next;
+ var ns=sh([100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000]).slice(0,4),sel=null,got=0,bad=0,SV="http://www.w3.org/2000/svg";
+ app.innerHTML=shell(i,t,'<p style="text-align:center">แตะตัวเลขทางซ้าย แล้วแตะคำมลายูที่ตรงกันทางขวา เพื่อโยงเส้น 🔗</p><div id="mw" style="position:relative;display:flex;justify-content:space-between;gap:60px;padding:6px 0"><svg id="sv" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"></svg><div id="L" style="display:flex;flex-direction:column;gap:14px;z-index:1"></div><div id="Rr" style="display:flex;flex-direction:column;gap:14px;z-index:1"></div></div>');
+ var mw=document.getElementById("mw"),sv=document.getElementById("sv");
+ function line(a,b,col){var w=mw.getBoundingClientRect(),x=a.getBoundingClientRect(),y=b.getBoundingClientRect(),l=document.createElementNS(SV,"line");
+  l.setAttribute("x1",x.right-w.left);l.setAttribute("y1",x.top+x.height/2-w.top);l.setAttribute("x2",y.left-w.left);l.setAttribute("y2",y.top+y.height/2-w.top);
+  l.setAttribute("stroke",col);l.setAttribute("stroke-width","6");l.setAttribute("stroke-linecap","round");sv.appendChild(l);return l}
+ sh(ns).forEach(function(n){var b=document.createElement("button");b.className="opt";b.textContent=n;b.dataset.n=n;
+  b.onclick=function(){if(b.dataset.lock)return;if(sel)sel.style.outline="";sel=b;b.style.outline="4px solid #3a86ff"};document.getElementById("L").appendChild(b)});
+ sh(ns).forEach(function(n){var b=document.createElement("button");b.className="opt";b.textContent=my(n);b.dataset.n=n;
+  b.onclick=function(){if(!sel||b.dataset.lock)return;var a=sel,ok=a.dataset.n==b.dataset.n;sel=null;a.style.outline="";
+   var l=line(a,b,ok?"#2ab37a":"#e8505b");
+   if(ok){a.dataset.lock=b.dataset.lock=1;a.className=b.className="opt ok";got++;say(my(+b.dataset.n));
+    if(got==4){done(bad==0);feedback(true)}else document.getElementById("fb").textContent="ถูกแล้ว! โยงต่ออีก 👉"}
+   else{bad++;setTimeout(function(){l.remove()},700);feedback(false,a.dataset.n+" อ่านว่า <b>"+my(+a.dataset.n)+"</b>")}};
+  document.getElementById("Rr").appendChild(b)})})}
+home();
+</script>
+</body>
+</html>
